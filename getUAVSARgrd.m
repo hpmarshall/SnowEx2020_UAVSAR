@@ -3,7 +3,7 @@ function getUAVSARgrid(flight_url,base_name)
 % this function downloads all polarizations and data files of interest from
 %   a specific UAVSAR flight line
 
-ext={'.cor.grd','.int.grd','.amp1.grd','.amp2.grd','.ann'}; % file extensions for data
+ext={'.cor.grd','.int.grd','.amp1.grd','.amp2.grd','.ann','.int.kmz','.cor.kmz','.amp1.kmz','.amp2.kmz','.unw.kmz','.hgt.kmz'}; % file extensions for data
 pol={'HH','HH','HV','VH','VV'}; % polarizations
 data_dir='../../DATA_DRIVE/SnowEx2020/UAVSAR/';
 options=weboptions('Username','hpmarshall@boisestate.edu','Password','SnowEx2021!');

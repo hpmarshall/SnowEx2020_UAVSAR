@@ -1,23 +1,13 @@
-% readUAVSARgrd
+function [r,hI]=readUAVSARgrd(dfile)
 % HPM  6/29/20
-% read in the UAVSAR binary images from their website
+% read in the UAVSAR binary images 
 
-flight_name='http://uavsar.asfdaac.alaska.edu/UA_grmesa_27416_20003-028_20005-007_0011d_s01_L090_01/grmesa_27416_20003-028_20005-007_0011d_s01_L090HH_01'
-
-ext={'.cor.grd','.int.grd','.amp1.grd','.amp2.grd'} % file extensions for data
-pol={'HH','HV','VH','VV'} % polarizations
-
+%dfile='../../DATA_DRIVE/SnowEx2020/UAVSAR/grmesa_27416_20003-028_20005-007_0011d_s01_L090HH_01.amp1.grd';
+%zone=12;
 %%
-
-
-
-
-D=dir('../../DATA_DRIVE/SnowEx2020/UAVSAR/*.amp1.grd');
-dfile=[D(1).folder '/' D(1).name];
-[~,dname,~]=fileparts(dfile);
+[dpath,dname,~]=fileparts(dfile);
 [~,dname,~]=fileparts(dname);
-afile=[D(1).folder '/' dname '.ann.txt'];
-
+afile=[dpath '/' dname '.ann'];
 
 text = fileread(afile);
 TextAsCells = regexp(text, '\n', 'split');
@@ -49,16 +39,32 @@ Ix=strfind(s{1},'=');
 dLon=str2double(s{1}((Ix+1):end));
 %%
 fileID=fopen(dfile,'r');
-A=fread(fileID,[Ncol Nrow],'float32',0,'l');
-%%
-%%
-figure(1);clf
-imagesc(A',[0 1]); colorbar
+Z=fread(fileID,[Ncol Nrow],'float32',0,'l');
+Z=Z'; % transpose
+
+%% now create spatial coordinates
+lat=Lat1:dLat:(Lat1+dLat*(Nrow-1));
+lon=Lon1:dLon:(Lon1+dLon*(Ncol-1));
+[LON,LAT]=meshgrid(lon,lat);
+Z(Z==0)=NaN; % set zeros to NaN
+Ix=~isnan(Z); % indicies to non-nan values
+%[X,Y]=ll2utm(LAT,LON,zone);
+r.x=lon; r.y=lat; r.Z=Z; r.name='Grand Mesa, Feb 1, amplitude';
+crange=[0 0.5];
+hI=nanimagesc(r,Ix,crange)
 
 %%
+%figure(1);clf
+%imagesc(lon,lat,Z,[0 0.5]); colorbar
+%set(gca,'YDir','normal')
+%Z(Z==0)=NaN; % set zero values to NaN
 
-
-
-
+%%
+%Z2=Z; Z2(Z2>0.5)=0.5;
+%figure(1);clf
+%geoimg = geoshow(LAT,LON,Z2,'DisplayType', 'texturemap') % save object
+%geoimg.AlphaDataMapping = 'none'; % interpet alpha values as transparency values
+%geoimg.FaceAlpha = 'texturemap'; % Indicate that the transparency can be different each pixel
+%alpha(geoimg,double(~isnan(Z))) % Change transparency to matrix where if data==NaN --> transparency = 1, else 0.
 
 
